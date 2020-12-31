@@ -26,11 +26,11 @@ namespace Lab03_03
                 if (listlnvoice.Any(x => x.InvoiceNo == order.Invoice.InvoiceNo)) continue;
                 listlnvoice.Add(order.Invoice);
             }
-            LoadData();
+            LoadData(listlnvoice);
 
         }
 
-        private void LoadData()
+        private void LoadData(List<Invoice> listlnvoice)
         {
             decimal num = 0;
             decimal num1 = 0;
@@ -58,19 +58,24 @@ namespace Lab03_03
 
         private void checkBoxAll_CheckedChanged(object sender, EventArgs e)
         {
-            DateTime time = new DateTime();
-            time = DateTime.Now;
-            DateTime time1 = new DateTime(time.Year, time.Month,31);
+            DateTime time = new DateTime(date1.Value.Year, date1.Value.Month, date1.Value.Day);
+            DateTime time1 = new DateTime(time.Year, time.Month,1);
+            time1 = time1.AddMonths(1).AddDays(-1);
             date1.Value = DateTime.ParseExact(time.Date.ToString("01/MM/yyyy"),"dd/MM/yyyy",CultureInfo.InvariantCulture);
             date2.Value = DateTime.ParseExact(time1.Date.ToString("dd/MM/yyyy"), "dd/MM/yyyy", CultureInfo.InvariantCulture);
         }
 
         private void date1_ValueChanged(object sender, EventArgs e)
         {
-            listOrder = ProductInfoService.GetAll();
-            listOrder = listOrder.Where(x => x.Invoice.DeliveryDate >= date1.Value).ToList();
-            listOrder = listOrder.Where(x => x.Invoice.DeliveryDate <= date2.Value).ToList();
-            LoadData();
+            if(date2.Value < date1.Value)
+            {
+                MessageBox.Show("Lỗi thao tác!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                date2.Value = DateTime.Now;
+                return;
+            }
+            List<Invoice> listtemp = new List<Invoice>(listlnvoice);
+            listtemp = listlnvoice.Where(x => x.DeliveryDate >= date1.Value && x.DeliveryDate <= date2.Value).ToList();
+            LoadData(listtemp);
         }
     }
 }
